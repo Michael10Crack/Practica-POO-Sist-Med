@@ -63,18 +63,18 @@ class Sistema():
         return len(self.__lista_pacientes)
     
     def BuscarPaciente(self, key):
+        pac = Paciente()
+        patients_found = []
         for p in self.__lista_pacientes:
             #vamos a mirar si hay coincidencias en la cédula o en el nombre 
-            if str(key).lower() in p.verNombre().lower or str(key) == str(self.verCedula()):
+            if str(key).lower() in pac.verNombre().lower() or str(key) == str(pac.verCedula()):
                 #agregamos a la base de datos
-                self.__lista_pacientes.append(p)
+                patients_found.append(p)
                 #retornamos la base de datos
-                return self.__lista_pacientes
+                return patients_found
         
 def main():
     sis = Sistema()
-    sis1 = Sistema()
-    sis2 = Sistema()
     while True:
         #opcion = int(input("Ingrese 0 para volver al menu, 1 para ingresar nuevo paciente, 2 ver paciente: , 3 - ver cantidad de pacientes "))
         #hay que validar el menú?
