@@ -63,15 +63,13 @@ class Sistema():
         return len(self.__lista_pacientes)
     
     def BuscarPaciente(self, key):
-        pac = Paciente()
         patients_found = []
+        if key == "":
+            return patients_found  # Retorna una lista vacía si la clave de búsqueda está vacía
         for p in self.__lista_pacientes:
-            #vamos a mirar si hay coincidencias en la cédula o en el nombre 
-            if str(key).lower() in pac.verNombre().lower() or str(key) == str(pac.verCedula()):
-                #agregamos a la base de datos
+            if str(key).lower() in p.verNombre().lower() or str(key) == str(p.verCedula()):
                 patients_found.append(p)
-                #retornamos la base de datos
-                return patients_found
+        return patients_found
         
 def main():
     sis = Sistema()
@@ -114,7 +112,7 @@ def main():
             # Buscamos en la bd
             resultado_pacientes = sis.BuscarPaciente(str(key_busqueda))
             if not resultado_pacientes:
-                print("El paciente no se encotró")
+                print("El paciente no se encontró")
             else:
                 print('Pacientes encontrados: ')
                 for paciente in resultado_pacientes:
