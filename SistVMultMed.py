@@ -1,3 +1,9 @@
+import re
+
+def validarFecha(fecha):
+    #El formato deseado de fecha es dia/mes/año
+    patron = re.compile(r'^\d{2}/\d{2}/\d{4}$')
+    return patron.match(fecha)
 class Medicamento:
     def __init__(self):
         self.__nombre = "" 
@@ -48,45 +54,65 @@ class Mascota:
         self.__fecha_ingreso=f
     def asignarLista_Medicamentos(self,n):
         self.__lista_medicamentos = n 
+    def eliminarMedicamento(self, nombre_medicamento):
+        m = Mascota
+        for medicamento in self.__lista_medicamentos:
+            if m.verNombre() == nombre_medicamento:
+                self.__lista_medicamentos.remove(medicamento)
+                return True
+        return False
+
     
 class sistemaV:
     def __init__(self):
-        self.__lista_mascotas = []
+        self.__mascotas_caninos = {}
+        self.__mascotas_felinos = {}
     
     def verificarExiste(self,historia):
-        for m in self.__lista_mascotas:
-            if historia == m.verHistoria():
-                return True
+        if historia in self.__mascotas_caninos or historia in self.__mascotas_felinos:
         #solo luego de haber recorrido todo el ciclo se retorna False
+            return True
         return False
         
     def verNumeroMascotas(self):
-        return len(self.__lista_mascotas) 
+        return len(self.__mascotas_caninos) + len(self.__mascotas_felinos)
     
-    def ingresarMascota(self,mascota):
-        self.__lista_mascotas.append(mascota) 
+    def ingresarMascota(self,m = Mascota):  #asigno la variable m la clase Mascota para que se llamen correctamente los métodos
+        if m.verTipo() == 'canino':
+            self.__mascotas_caninos[m.verHistoria()] = m
+        elif m.verTipo() == 'felino':
+            self.__mascotas_felinos[m.verHistoria()] = m
    
 
     def verFechaIngreso(self,historia):
-        #busco la mascota y devuelvo el atributo solicitado
-        for masc in self.__lista_mascotas:
-            if historia == masc.verHistoria():
-                return masc.verFecha() 
+        m = Mascota
+        pet = self.__mascotas_caninos.get(historia, None)
+        if pet:
+            return m.verFecha()
+        pet = self.__mascotas_felinos.get(historia, None)
+        if pet:
+            return m.verFecha()
         return None
 
     def verMedicamento(self,historia):
-        #busco la mascota y devuelvo el atributo solicitado
-        for masc in self.__lista_mascotas:
-            if historia == masc.verHistoria():
-                return masc.verLista_Medicamentos() 
+        m = Mascota
+        pet = self.__mascotas_caninos.get(historia, None)
+        if pet:
+            return m.verLista_Medicamentos()
+        pet = self.__mascotas_felinos.get(historia, None)
+        if pet:
+            return m.verLista_Medicamentos()
         return None
+        
     
     def eliminarMascota(self, historia):
-        for masc in self.__lista_mascotas:
-            if historia == masc.verHistoria():
-                self.__lista_mascotas.remove(masc)  #opcion con el pop
-                return True  #eliminado con exito
-        return False 
+        if historia in self.__mascotas_caninos:
+            del self.__mascotas_caninos[historia]
+            return True
+        elif historia in self.__mascotas_felinos:
+            del self.__mascotas_felinos[historia]
+            return True
+        return False
 
 def main():
     servicio_hospitalario = sistemaV()
@@ -98,7 +124,8 @@ def main():
                        \n3- Ver número de mascotas en el servicio 
                        \n4- Ver medicamentos que se están administrando
                        \n5- Eliminar mascota 
-                       \n6- Salir 
+                       \n6- Eliminar medicamento de una mascota 
+                       \n7- Salir 
                        \nUsted ingresó la opción: ''' ))
         if menu==1: # Ingresar una mascota 
             if servicio_hospitalario.verNumeroMascotas() >= 10:
@@ -108,9 +135,12 @@ def main():
             #   verificacion=servicio_hospitalario.verDatosPaciente(historia)
             if servicio_hospitalario.verificarExiste(historia) == False:
                 nombre=input("Ingrese el nombre de la mascota: ")
-                tipo=input("Ingrese el tipo de mascota (felino o canino): ")
-                peso=int(input("Ingrese el peso de la mascota: "))
+                tipo=input("Ingrese el tipo de mascota (canino o felino): ")
+                peso=float(input("Ingrese el peso de la mascota: "))
                 fecha=input("Ingrese la fecha de ingreso (dia/mes/año): ")
+                if not validarFecha(fecha):
+                    print('ERROR- El formato de la fecha es incorrecto. Debe ser dia/mes/año')
+                    continue
                 nm=int(input("Ingrese cantidad de medicamentos: "))
                 lista_med=[]
 
@@ -138,21 +168,22 @@ def main():
             q = int(input("Ingrese la historia clínica de la mascota: "))
             fecha = servicio_hospitalario.verFechaIngreso(q)
             # if servicio_hospitalario.verificarExiste == True
-            if fecha != None:
-                print("La fecha de ingreso de la mascota es: " + fecha)
+            if fecha :
+                print("La fecha de ingreso de la mascota es: " , fecha)
             else:
                 print("La historia clínica ingresada no corresponde con ninguna mascota en el sistema.")
             
         elif menu==3: # Ver número de mascotas en el servicio 
             numero=servicio_hospitalario.verNumeroMascotas()
-            print("El número de pacientes en el sistema es: " + str(numero))
+            print("El número de pacientes en el sistema es: " , numero)
 
         elif menu==4: # Ver medicamentos que se están administrando
+            m = Mascota
             q = int(input("Ingrese la historia clínica de la mascota: "))
-            medicamento = servicio_hospitalario.verMedicamento(q) 
-            if medicamento != None: 
+            medicamentos = servicio_hospitalario.verMedicamento(q) 
+            if medicamentos :
                 print("Los medicamentos suministrados son: ")
-                for m in medicamento:   
+                for medicamento in medicamentos:   
                     print(f"\n- {m.verNombre()}")
             else:
                 print("La historia clínica ingresada no corresponde con ninguna mascota en el sistema.")
@@ -166,7 +197,21 @@ def main():
             else:
                 print("No se ha podido eliminar la mascota")
         
-        elif menu==6:
+        elif menu == 6: #Eliminar medicamento de una mascota
+            q = int(input('Ingrese la historia clínica de la mascota: '))
+            mascota = servicio_hospitalario.__mascotas_caninos.get(q, None)
+            if not mascota:
+                mascota = servicio_hospitalario.__mascotas_felinos.get(q , None)
+            if mascota:
+                nombre_medicamento = input('Ingrese el nombre del medicamento que desea eliminar: ')
+                if Mascota.eliminarMedicamento(nombre_medicamento):
+                    print('Medicamento eliminado correctamente')
+                else:
+                    print('El medicamento no se encuentra en la lista')
+            else:
+                print('La historia clínica ingresada no corresponde con ninguna mascota en el sistema')
+
+        elif menu==7: #salir
             print("Usted ha salido del sistema de servicio de hospitalización...")
             break
         
