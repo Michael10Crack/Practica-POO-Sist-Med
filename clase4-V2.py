@@ -1,3 +1,10 @@
+def ValNumInt(x):
+    while True:
+        try:
+            x = int(x)
+            return x
+        except ValueError:
+            return ValNumInt(input('Debe ingresar un dato numérico: '))
 class Paciente:
     def __init__(self):
         self.__nombre = "juanita"
@@ -23,7 +30,7 @@ class Paciente:
     def asignarCedula(self,c):
         self.__cedula = c
 
-class Sistema:
+class Sistema():
     def __init__(self):
         self.__lista_pacientes = []
       
@@ -52,17 +59,35 @@ class Sistema:
             if c == p.verCedula():
                 return p
     def verNumeroPacientes(self):
-        # print("Enel sistema hay: " + str(len(self.__lista_pacientes)) + " pacientes")
+        print("En el sistema hay: " + str(len(self.__lista_pacientes)) + " pacientes")
         return len(self.__lista_pacientes)
+    
+    def BuscarPaciente(self, key):
+        for p in self.__lista_pacientes:
+            #vamos a mirar si hay coincidencias en la cédula o en el nombre 
+            if str(key).lower() in p.verNombre().lower or str(key) == str(self.verCedula()):
+                #agregamos a la base de datos
+                self.__lista_pacientes.append(p)
+                #retornamos la base de datos
+                return self.__lista_pacientes
         
 def main():
     sis = Sistema()
     sis1 = Sistema()
     sis2 = Sistema()
     while True:
-        opcion = int(input("Ingrese 0 para volver al menu, 1 para ingresar nuevo paciente, 2 ver paciente: , 3 - ver cantidad de pacientes "))
+        #opcion = int(input("Ingrese 0 para volver al menu, 1 para ingresar nuevo paciente, 2 ver paciente: , 3 - ver cantidad de pacientes "))
+        #hay que validar el menú?
+        #lo hago por si acaso
+        opcion = ValNumInt(input("""
+                                 Eliga la opción que desea ejecutar:
+                                 0. Volver al menu
+                                 1. Ingresar nuevo paciente
+                                 2. Ver paciente(s)
+                                 3. Ver cantidad de pacientes
+                                 -> """))
         if opcion == 1:
-            print("A continuacion se solicitaran los seguientes datos:")
+            print("A continuacion se solicitaran los siguientes datos:")
             # 1 Se solicitaran los datos
             nombre = input("Ingrese el nombre: ")
             cedula = int(input("Ingrese la cedula: "))    
@@ -75,7 +100,7 @@ def main():
             pac.asignarCedula(cedula)
             pac.asignarGenero(genero)
             pac.asignarServicio(servicio)
-            r = sis2.ingresarPaciente(pac)
+            r = sis.ingresarPaciente(pac)
             # 3 se almacena en la lista que esta dentro de la clase sistema
 
             if r == True:
@@ -84,19 +109,19 @@ def main():
                 print("paciente ya existe en el sistema")
 
         elif opcion == 2:
-            # 1 solicito la cedula que quiero buscar
-            c = int(input("Ingrese la cedula a buscar: "))
-            # le pido al sistema que me devuelva en la variable p al paciente que tenga
-            #  la cedula c en la lista
-            p = sis.verDatosPaciente(c)
-            # si encunetro el paciente imprimo los datos
-            if p == None:
+            # solicito la cedula o el nombre que quiero buscar:
+            key_busqueda = input('Ingrese la cédula o el nombre del paciente a buscar: ')
+            # Buscamos en la bd
+            resultado_pacientes = sis.BuscarPaciente(str(key_busqueda))
+            if not resultado_pacientes:
                 print("El paciente no se encotró")
             else:
-                print("Nombre: " + p.verNombre())
-                print("Cedula: " + str(p.verCedula()))
-                print("Genero: " + p.verGenero())
-                print("Servicio: " + p.verServicio())
+                print('Pacientes encontrados: ')
+                for paciente in resultado_pacientes:
+                    print("Nombre: " + paciente.verNombre())
+                    print("Cedula: " + str(paciente.verCedula()))
+                    print("Genero: " + paciente.verGenero())
+                    print("Servicio: " + paciente.verServicio())
         
         elif opcion == 3:
             print(f"la cantidad de pacientes en el sistema es: {sis.verNumeroPacientes()}")
