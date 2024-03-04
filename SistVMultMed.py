@@ -54,10 +54,9 @@ class Mascota:
         self.__fecha_ingreso=f
     def asignarLista_Medicamentos(self,n):
         self.__lista_medicamentos = n 
-    def eliminarMedicamento(self, nombre_medicamento):
-        m = Mascota
+    def eliminarMedicamento(self,nombre_medicamento):
         for medicamento in self.__lista_medicamentos:
-            if m.verNombre() == nombre_medicamento:
+            if medicamento.verNombre() == nombre_medicamento:
                 self.__lista_medicamentos.remove(medicamento)
                 return True
         return False
@@ -85,23 +84,21 @@ class sistemaV:
    
 
     def verFechaIngreso(self,historia):
-        m = Mascota
         pet = self.__mascotas_caninos.get(historia, None)
         if pet:
-            return m.verFecha()
+            return pet.verFecha()
         pet = self.__mascotas_felinos.get(historia, None)
         if pet:
-            return m.verFecha()
+            return pet.verFecha()
         return None
 
     def verMedicamento(self,historia):
-        m = Mascota
         pet = self.__mascotas_caninos.get(historia, None)
         if pet:
-            return m.verLista_Medicamentos()
+            return pet.verLista_Medicamentos()
         pet = self.__mascotas_felinos.get(historia, None)
         if pet:
-            return m.verLista_Medicamentos()
+            return pet.verLista_Medicamentos()
         return None
         
     
@@ -113,7 +110,11 @@ class sistemaV:
             del self.__mascotas_felinos[historia]
             return True
         return False
-
+    def getMascota(self, historia):
+        mascota = self.__mascotas_caninos.get(historia, None)
+        if not mascota:
+            mascota = self.__mascotas_felinos.get(historia, None)
+        return mascota
 def main():
     servicio_hospitalario = sistemaV()
     # sistma=sistemaV()
@@ -143,6 +144,7 @@ def main():
                     continue
                 nm=int(input("Ingrese cantidad de medicamentos: "))
                 lista_med=[]
+                
 
                 for i in range(0,nm):
                     nombre_medicamentos = input("Ingrese el nombre del medicamento: ")
@@ -160,9 +162,10 @@ def main():
                 mas.asignarFecha(fecha)
                 mas.asignarLista_Medicamentos(lista_med)
                 servicio_hospitalario.ingresarMascota(mas)
+                print('Mascota ingresada correctamente al sistema')
 
             else:
-                print("Ya existe la mascota con el numero de histoira clinica")
+                print("Ya existe la mascota con el numero de historia clinica")
 
         elif menu==2: # Ver fecha de ingreso
             q = int(input("Ingrese la historia clínica de la mascota: "))
@@ -175,16 +178,16 @@ def main():
             
         elif menu==3: # Ver número de mascotas en el servicio 
             numero=servicio_hospitalario.verNumeroMascotas()
-            print("El número de pacientes en el sistema es: " , numero)
+            print("El número de mascotas en el sistema es: " , numero)
 
         elif menu==4: # Ver medicamentos que se están administrando
-            m = Mascota
+
             q = int(input("Ingrese la historia clínica de la mascota: "))
             medicamentos = servicio_hospitalario.verMedicamento(q) 
             if medicamentos :
                 print("Los medicamentos suministrados son: ")
                 for medicamento in medicamentos:   
-                    print(f"\n- {m.verNombre()}")
+                    print(f"\n- {medicamento.verNombre()}")
             else:
                 print("La historia clínica ingresada no corresponde con ninguna mascota en el sistema.")
 
@@ -199,12 +202,10 @@ def main():
         
         elif menu == 6: #Eliminar medicamento de una mascota
             q = int(input('Ingrese la historia clínica de la mascota: '))
-            mascota = servicio_hospitalario.__mascotas_caninos.get(q, None)
-            if not mascota:
-                mascota = servicio_hospitalario.__mascotas_felinos.get(q , None)
+            mascota = servicio_hospitalario.getMascota(q)
             if mascota:
                 nombre_medicamento = input('Ingrese el nombre del medicamento que desea eliminar: ')
-                if Mascota.eliminarMedicamento(nombre_medicamento):
+                if mascota.eliminarMedicamento(nombre_medicamento):
                     print('Medicamento eliminado correctamente')
                 else:
                     print('El medicamento no se encuentra en la lista')
